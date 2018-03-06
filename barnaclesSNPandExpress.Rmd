@@ -1,7 +1,7 @@
 ---
 title: "Barnacles SNP and DE"
 author: "Eddy Dowle"
-date: "3/6/2018"
+date: "3/7/2018"
 output: html_document
 ---
 
@@ -26,6 +26,143 @@ expressiondat<-read.csv("~/Documents/github/barnacles/annot.results.csv",header=
 colnames(expressiondat)
 ```
 
+##Tajima D
+
+#Across all Differentially Expressed (DE) transcripts
+
+Some of these are annotated as having two genes on the same scaffold Im just going to average by scafold ~not sure if that is the 'right' way to go about this
+
+```{r DE_D}
+
+dcorrected_BCT<-read.table("~/Documents/Barnacles/notreat/popoolation/barnacles.BCT.notreat.sort.gtf.min4max50000.downsample.dcorrected.clean",header=T)
+dcorrected_WST<-read.table("~/Documents/Barnacles/notreat/popoolation/barnacles.WST.notreat.sort.gtf.min4max50000.downsample.dcorrected.clean",header=T)
+
+dcorrected_BCT<-dcorrected_BCT %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
+dcorrected_WST<-dcorrected_WST %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
+
+dcorrected_BCT %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_BCT %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+```
+
+BCT: t-test
+
+```{r DE_D2}
+a<- dcorrected_BCT %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
+hist(a$dcorrected_ave, main="BCT DE")
+b<-dcorrected_BCT %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
+hist(b$dcorrected_ave,main="BCT not DE")
+```
+
+t-test Tajima's D DE transcripts vs not DE transcripts: BCT
+```{r DE_D3}
+t.test(a$dcorrected_ave,b$dcorrected_ave)
+```
+
+WST: t-test
+
+```{r DE_D4}
+a<- dcorrected_WST %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
+hist(a$dcorrected_ave,main="WST DE")
+b<-dcorrected_WST %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
+hist(b$dcorrected_ave,main="WST not DE")
+```
+
+t-test Tajima's D DE transcripts vs not DE transcripts: WST
+```{r DE_D5}
+t.test(a$dcorrected_ave,b$dcorrected_ave)
+```
+
+#Question One: transcripts that were only differentially regulated in the White Sea (that's the more freeze tolerant) population
+
+```{r DE_D6}
+expressionWST<-read.csv("~/Documents/github/barnacles/allwsdiffreg.csv",header=T)
+
+dcorrected_BCT %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_BCT %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+```
+
+BCT: t-test
+
+```{r DE_D7}
+a<- dcorrected_BCT %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
+hist(a$dcorrected_ave,main="BCT DE (in WST)")
+
+b<-dcorrected_BCT %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
+hist(b$dcorrected_ave,main="BCT not DE (in WST)")
+```
+
+t-test Tajima's D DE transcripts in WST vs not DE transcripts in WST: BCT
+```{r DE_D8}
+t.test(a$dcorrected_ave,b$dcorrected_ave)
+```
+
+WST: t-test: 
+
+```{r DE_D9}
+a<- dcorrected_WST %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
+hist(a$dcorrected_ave,main="WST DE (in WST)")
+
+b<-dcorrected_WST %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
+hist(b$dcorrected_ave,main="WST not DE (in WST)")
+```
+t-test Tajima's D DE transcripts in WST vs not DE transcripts in WST: WST
+```{r DE_D10}
+t.test(a$dcorrected_ave,b$dcorrected_ave)
+```
+
+#Question Two: Anything labelled with "transcription" as a function.  I think these are likely transcription factors, and in particular, XLOC_006827 and XLOC_01766 are upregulated in both the BC and WS populations in the 4 hours following freezing
+
+```{r DE_D11}
+expressionWST_transciption<-expressionWST %>% filter(.,grepl('transcription',InterPro.GO.Names) | grepl('transcription',GO.Names)) 
+
+dcorrected_BCT %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+```
+
+There isnt enough of these transcipts in the BCT population for a t-test
+```{r DE_D12}
+a<- dcorrected_BCT %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
+hist(a$dcorrected_ave,main="BCT DE transcription transcripts (in WST)")
+nrow(a)
+b<-dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
+hist(b$dcorrected_ave,main="BCT not DE transcription transcripts (in WST)")
+nrow(b)
+#t.test(a$dcorrected_ave,b$dcorrected_ave)
+```
+
+WST: t-test: 
+
+```{r DE_D13}
+a<- dcorrected_WST %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
+hist(a$dcorrected_ave)
+nrow(a)
+b<-dcorrected_WST %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
+hist(b$dcorrected_ave)
+nrow(b)
+```
+t-test Tajima's D DE transcripts with transciption in GO term in WST vs not DE transcripts in WST: WST
+```{r DE_D14}
+t.test(a$dcorrected_ave,b$dcorrected_ave)
+```
+
+#Question three: Anything labelled as a "macrophage mannose receptor".  I think these are potentially novel antifreeze proteins--they often blast to fish Type 2 antifreeze proteins
+
+Note: there is only one transcipt in this comparison though for BCT coverage isnt high enough for these transcripts for a Tajima D calculation
+```{r DE_D15}
+expressionWST_MMR <- expressionWST %>% filter(.,grepl('macrophage mannose receptor',Description)) 
+dcorrected_BCT %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+dcorrected_WST %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+```
+there isnt enough of the MMR transcripts to do t-tests
+
 ## FST 
 Bring in file interested. Here Fst:
 (change the # to switch to a stricter set)
@@ -47,25 +184,6 @@ fst_top %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% sel
 
 Not a lot going on the FST other than that they are really high
 
-##Tajima D
-
-some of these got annotated as having two genes on the same scaffold Im just going to average by scafold ~not sure if that is the 'right' way to go about this
-
-```{r DE_D}
-
-dcorrected_BCT<-read.table("~/Documents/Barnacles/notreat/popoolation/barnacles.BCT.notreat.sort.gtf.min4max50000.downsample.dcorrected.clean",header=T)
-dcorrected_WST<-read.table("~/Documents/Barnacles/notreat/popoolation/barnacles.WST.notreat.sort.gtf.min4max50000.downsample.dcorrected.clean",header=T)
-
-dcorrected_BCT<-dcorrected_BCT %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
-dcorrected_WST<-dcorrected_WST %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
-
-dcorrected_BCT %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
-dcorrected_BCT %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
-dcorrected_WST %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
-dcorrected_WST %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
-```
-
-More interesting! Definitly something different there!
 
 ## FET
 
