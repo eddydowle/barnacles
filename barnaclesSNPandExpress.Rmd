@@ -40,9 +40,13 @@ dcorrected_WST<-read.table("~/Documents/Barnacles/notreat/popoolation/barnacles.
 dcorrected_BCT<-dcorrected_BCT %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
 dcorrected_WST<-dcorrected_WST %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
 
+#average tajima D within BCT that are DE 
 dcorrected_BCT %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within BCT that are NOT DE 
 dcorrected_BCT %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that are DE
 dcorrected_WST %>% filter(., SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that are NOT DE
 dcorrected_WST %>% filter(., !SeqName %in% expressiondat$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 ```
 
@@ -79,9 +83,13 @@ t.test(a$dcorrected_ave,b$dcorrected_ave)
 ```{r DE_D6}
 expressionWST<-read.csv("~/Documents/github/barnacles/allwsdiffreg.csv",header=T)
 
+#average tajima D within BCT that are DE in only in white sea
 dcorrected_BCT %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within BCT that are NOT DE in only in white sea
 dcorrected_BCT %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that are DE in only in white sea
 dcorrected_WST %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that are NOT DE in only in white sea
 dcorrected_WST %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 ```
 
@@ -119,9 +127,13 @@ t.test(a$dcorrected_ave,b$dcorrected_ave)
 ```{r DE_D11}
 expressionWST_transciption<-expressionWST %>% filter(.,grepl('transcription',InterPro.GO.Names) | grepl('transcription',GO.Names)) 
 
+#average tajima D within BCT that are DE in only in white sea with a GO term of 'transciption'
 dcorrected_BCT %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within BCT that do not have a GO term of 'transciption'
 dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that are DE in only in white sea with a GO term of 'transciption'
 dcorrected_WST %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that do not have a GO term of 'transciption'
 dcorrected_WST %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 ```
 
@@ -151,14 +163,36 @@ t-test Tajima's D DE transcripts with transciption in GO term in WST vs not DE t
 t.test(a$dcorrected_ave,b$dcorrected_ave)
 ```
 
-#Question three: Anything labelled as a "macrophage mannose receptor".  I think these are potentially novel antifreeze proteins--they often blast to fish Type 2 antifreeze proteins
+#Question Three: Anything labelled as a potential aquaporin. (XLOC_019964, XLOC_019967, and XXLOC_035387 in particular)
+
+Only three transcipts return from the search terms aquaporin or Aquaporin so not running t-tests
+```{r DE_D20}
+expressionWST_aqua <-expressionWST %>% filter(.,grepl('aquaporin',Description)|grepl('Aquaporin',Description)) 
+
+dcorrected_BCT %>% filter(., SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#no transcripts
+#average tajima D within BCT that do not have a description of 'Aquaporin'
+dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that are DE in only in white sea with description of 'Aquaporin'
+dcorrected_WST %>% filter(., SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that do not have a description of 'Aquaporin'
+dcorrected_WST %>% filter(., !SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+```
+
+
+#Question Four: Anything labelled as a "macrophage mannose receptor".  I think these are potentially novel antifreeze proteins--they often blast to fish Type 2 antifreeze proteins
 
 Note: there is only one transcipt in this comparison though for BCT coverage isnt high enough for these transcripts for a Tajima D calculation
 ```{r DE_D15}
 expressionWST_MMR <- expressionWST %>% filter(.,grepl('macrophage mannose receptor',Description)) 
+
+#average tajima D within BCT that are DE in only in white sea with description of 'macrophage mannose receptor'
 dcorrected_BCT %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within BCT that do not have a description of 'macrophage mannose receptor'
 dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that are DE in only in white sea with description of 'macrophage mannose receptor'
 dcorrected_WST %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#average tajima D within WST that do not have a description of 'macrophage mannose receptor'
 dcorrected_WST %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 ```
 there isnt enough of the MMR transcripts to do t-tests

@@ -101,28 +101,32 @@ dcorrected_WST<-read.table("~/Documents/Barnacles/notreat/popoolation/barnacles.
 dcorrected_BCT<-dcorrected_BCT %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
 dcorrected_WST<-dcorrected_WST %>% group_by(.,SeqName) %>% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
 
+#average tajima D within BCT that are DE in only in white sea
 dcorrected_BCT %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-1.189827 
 
+#average tajima D within BCT that are NOT DE in only in white sea
 dcorrected_BCT %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-0.7021807
 
+#average tajima D within WST that are DE in only in white sea
 dcorrected_WST %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-1.445604 
 
+#average tajima D within WST that are NOT DE in only in white sea
 dcorrected_WST %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-0.8319091
 
+#t-test of tajima d values for transcripts that are/are not DE expressed in WST
+#for BCT:
 a<- dcorrected_BCT %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
 hist(a$dcorrected_ave)
-
 b<-dcorrected_BCT %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
 hist(b$dcorrected_ave)
-
 t.test(a$dcorrected_ave,b$dcorrected_ave)
 
 #Welch Two Sample t-test
@@ -136,12 +140,12 @@ t.test(a$dcorrected_ave,b$dcorrected_ave)
 #  mean of x  mean of y 
 #-1.1898267 -0.7021807 
 
+#t-test of tajima d values for transcripts that are/are not DE expressed in WST
+#for WST:
 a<- dcorrected_WST %>% filter(., SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
 hist(a$dcorrected_ave)
-
 b<-dcorrected_WST %>% filter(., !SeqName %in% expressionWST$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
 hist(b$dcorrected_ave)
-
 t.test(a$dcorrected_ave,b$dcorrected_ave)
 
 #Welch Two Sample t-test
@@ -166,40 +170,47 @@ colnames(expressionWST)
 
 expressionWST_transciption<-expressionWST %>% filter(.,grepl('transcription',InterPro.GO.Names) | grepl('transcription',GO.Names)) 
 
+#average tajima D within BCT that are DE in only in white sea with a GO term of 'transciption'
 #there is only one transcipt in this comparison though for BCT coverage isnt high enough for these transcripts for a Tajima D calculation
 dcorrected_BCT %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-1.157307
 
+#average tajima D within BCT that do not have a GO term of 'transciption'
 dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-0.7035338
 
+#average tajima D within WST that are DE in only in white sea with a GO term of 'transciption'
 dcorrected_WST %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-2.479258 
 
+#average tajima D within WST that do not have a GO term of 'transciption'
 dcorrected_WST %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-0.8406581
 
+#t-test of tajima d values for transcripts that are DE expressed in WST with/without a GO term of 'transciption'
+#for BCT:
 #there isnt enough of these transcription transcripts covered at high enough coverage in BCT so we cant do a t-test
 a<- dcorrected_BCT %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
 hist(a$dcorrected_ave)
-a
+nrow(a) #1
 b<-dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
 hist(b$dcorrected_ave)
-b
+nrow(b) #14800
 t.test(a$dcorrected_ave,b$dcorrected_ave)
 
 
-#WST
+#t-test of tajima d values for transcripts that are DE expressed in WST with/without a GO term of 'transciption'
+#for WST:
 a<- dcorrected_WST %>% filter(., SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
 hist(a$dcorrected_ave)
-a
+nrow(a) #9
 b<-dcorrected_WST %>% filter(., !SeqName %in% expressionWST_transciption$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
 hist(b$dcorrected_ave)
-b
+nrow(b) #15631
 t.test(a$dcorrected_ave,b$dcorrected_ave)
 
 #Welch Two Sample t-test
@@ -216,8 +227,36 @@ t.test(a$dcorrected_ave,b$dcorrected_ave)
 ##########################################
 ################question 3################
 ##########################################
+#3)Anything labelled as a potential aquaporin. (XLOC_019964, XLOC_019967, and XXLOC_035387 in particular). 
 
-#3) Anything labelled as a "macrophage mannose receptor".  I think these are potentially novel antifreeze proteins--they often blast to fish Type 2 antifreeze proteins.  
+#only three of these so no t-tests
+expressionWST_aqua <-expressionWST %>% filter(.,grepl('aquaporin',Description)|grepl('Aquaporin',Description)) 
+
+#average tajima D within BCT that are DE in only in white sea with description of 'Aquaporin'
+dcorrected_BCT %>% filter(., SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#no transcripts
+
+#average tajima D within BCT that do not have a description of 'Aquaporin'
+dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#dcorrected_ave 
+#-0.7035645 
+
+#average tajima D within WST that are DE in only in white sea with description of 'Aquaporin'
+dcorrected_WST %>% filter(., SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#dcorrected_ave 
+#-2.604873 #3 transcripts
+
+#average tajima D within WST that do not have a description of 'Aquaporin'
+dcorrected_WST %>% filter(., !SeqName %in% expressionWST_aqua$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
+#dcorrected_ave 
+#-0.8412628
+
+
+##########################################
+################question 4################
+##########################################
+
+#4) Anything labelled as a "macrophage mannose receptor".  I think these are potentially novel antifreeze proteins--they often blast to fish Type 2 antifreeze proteins.  
 
 colnames(expressionWST)
 
@@ -225,20 +264,23 @@ expressionWST %>% filter(.,grepl('macrophage mannose receptor',Description))
 
 expressionWST_MMR <- expressionWST %>% filter(.,grepl('macrophage mannose receptor',Description)) 
 
-
+#average tajima D within BCT that are DE in only in white sea with description of 'macrophage mannose receptor'
 #there is only one transcipt in this comparison though for BCT coverage isnt high enough for these transcripts for a Tajima D calculation
 dcorrected_BCT %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-1.108875
 
+#average tajima D within BCT that do not have a description of 'macrophage mannose receptor'
 dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-0.7035097
 
+#average tajima D within WST that are DE in only in white sea with description of 'macrophage mannose receptor'
 dcorrected_WST %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-1.320399
 
+#average tajima D within WST that do not have a description of 'macrophage mannose receptor'
 dcorrected_WST %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) %>% colMeans()
 #dcorrected_ave 
 #-0.8414786
@@ -246,20 +288,20 @@ dcorrected_WST %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungrou
 #there isnt enough of these transcription transcripts covered at high enough coverage in BCT so we cant do a t-test
 a<- dcorrected_BCT %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
 hist(a$dcorrected_ave)
-a
+nrow(a) #2
 b<-dcorrected_BCT %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
 hist(b$dcorrected_ave)
-b
+nrow(b) #14799
 #t.test(a$dcorrected_ave,b$dcorrected_ave)
 
 
 #WST also only has four observations for MMR so this isnt going to work either.
 a<- dcorrected_WST %>% filter(., SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave)
 hist(a$dcorrected_ave)
-a
+nrow(a) #4
 b<-dcorrected_WST %>% filter(., !SeqName %in% expressionWST_MMR$SeqName) %>% ungroup() %>% select(.,dcorrected_ave) 
 hist(b$dcorrected_ave)
-b
+nrow(b) #15636
 t.test(a$dcorrected_ave,b$dcorrected_ave)
 
 #Welch Two Sample t-test

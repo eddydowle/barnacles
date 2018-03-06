@@ -120,7 +120,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Barnacles SNP and DE</h1>
 <h4 class="author"><em>Eddy Dowle</em></h4>
-<h4 class="date"><em>3/6/2018</em></h4>
+<h4 class="date"><em>3/7/2018</em></h4>
 
 </div>
 
@@ -165,16 +165,20 @@ dcorrected_WST&lt;-read.table(&quot;~/Documents/Barnacles/notreat/popoolation/ba
 dcorrected_BCT&lt;-dcorrected_BCT %&gt;% group_by(.,SeqName) %&gt;% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
 dcorrected_WST&lt;-dcorrected_WST %&gt;% group_by(.,SeqName) %&gt;% summarise(.,dcorrected_ave = mean(dcorrected, na.rm = T),snp_count=sum(number_snps))
 
+#average tajima D within BCT that are DE 
 dcorrected_BCT %&gt;% filter(., SeqName %in% expressiondat$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -1.188611</code></pre>
-<pre class="r"><code>dcorrected_BCT %&gt;% filter(., !SeqName %in% expressiondat$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within BCT that are NOT DE 
+dcorrected_BCT %&gt;% filter(., !SeqName %in% expressiondat$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.6417929</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., SeqName %in% expressiondat$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that are DE
+dcorrected_WST %&gt;% filter(., SeqName %in% expressiondat$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -1.422189</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., !SeqName %in% expressiondat$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that are NOT DE
+dcorrected_WST %&gt;% filter(., !SeqName %in% expressiondat$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.8071944</code></pre>
 <p>BCT: t-test</p>
@@ -222,16 +226,20 @@ hist(b$dcorrected_ave,main=&quot;WST not DE&quot;)</code></pre>
 <h1>Question One: transcripts that were only differentially regulated in the White Sea (that’s the more freeze tolerant) population</h1>
 <pre class="r"><code>expressionWST&lt;-read.csv(&quot;~/Documents/github/barnacles/allwsdiffreg.csv&quot;,header=T)
 
+#average tajima D within BCT that are DE in only in white sea
 dcorrected_BCT %&gt;% filter(., SeqName %in% expressionWST$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -1.189827</code></pre>
-<pre class="r"><code>dcorrected_BCT %&gt;% filter(., !SeqName %in% expressionWST$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within BCT that are NOT DE in only in white sea
+dcorrected_BCT %&gt;% filter(., !SeqName %in% expressionWST$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.7021807</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., SeqName %in% expressionWST$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that are DE in only in white sea
+dcorrected_WST %&gt;% filter(., SeqName %in% expressionWST$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -1.445604</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., !SeqName %in% expressionWST$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that are NOT DE in only in white sea
+dcorrected_WST %&gt;% filter(., !SeqName %in% expressionWST$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.8319091</code></pre>
 <p>BCT: t-test</p>
@@ -278,16 +286,20 @@ hist(b$dcorrected_ave,main=&quot;WST not DE (in WST)&quot;)</code></pre>
 <h1>Question Two: Anything labelled with “transcription” as a function. I think these are likely transcription factors, and in particular, XLOC_006827 and XLOC_01766 are upregulated in both the BC and WS populations in the 4 hours following freezing</h1>
 <pre class="r"><code>expressionWST_transciption&lt;-expressionWST %&gt;% filter(.,grepl('transcription',InterPro.GO.Names) | grepl('transcription',GO.Names)) 
 
+#average tajima D within BCT that are DE in only in white sea with a GO term of 'transciption'
 dcorrected_BCT %&gt;% filter(., SeqName %in% expressionWST_transciption$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -1.157307</code></pre>
-<pre class="r"><code>dcorrected_BCT %&gt;% filter(., !SeqName %in% expressionWST_transciption$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within BCT that do not have a GO term of 'transciption'
+dcorrected_BCT %&gt;% filter(., !SeqName %in% expressionWST_transciption$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.7035338</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., SeqName %in% expressionWST_transciption$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that are DE in only in white sea with a GO term of 'transciption'
+dcorrected_WST %&gt;% filter(., SeqName %in% expressionWST_transciption$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -2.479258</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., !SeqName %in% expressionWST_transciption$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that do not have a GO term of 'transciption'
+dcorrected_WST %&gt;% filter(., !SeqName %in% expressionWST_transciption$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.8406581</code></pre>
 <p>There isnt enough of these transcipts in the BCT population for a t-test</p>
@@ -327,20 +339,47 @@ hist(b$dcorrected_ave)</code></pre>
 ##  mean of x  mean of y 
 ## -2.4792582 -0.8406581</code></pre>
 </div>
-<div id="question-three-anything-labelled-as-a-macrophage-mannose-receptor.-i-think-these-are-potentially-novel-antifreeze-proteinsthey-often-blast-to-fish-type-2-antifreeze-proteins" class="section level1">
-<h1>Question three: Anything labelled as a “macrophage mannose receptor”. I think these are potentially novel antifreeze proteins–they often blast to fish Type 2 antifreeze proteins</h1>
+<div id="question-three-anything-labelled-as-a-potential-aquaporin.-xloc_019964-xloc_019967-and-xxloc_035387-in-particular" class="section level1">
+<h1>Question Three: Anything labelled as a potential aquaporin. (XLOC_019964, XLOC_019967, and XXLOC_035387 in particular)</h1>
+<p>Only three transcipts return from the search terms aquaporin or Aquaporin so not running t-tests</p>
+<pre class="r"><code>expressionWST_aqua &lt;-expressionWST %&gt;% filter(.,grepl('aquaporin',Description)|grepl('Aquaporin',Description)) 
+
+dcorrected_BCT %&gt;% filter(., SeqName %in% expressionWST_aqua$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre><code>## dcorrected_ave 
+##            NaN</code></pre>
+<pre class="r"><code>#no transcripts
+#average tajima D within BCT that do not have a description of 'Aquaporin'
+dcorrected_BCT %&gt;% filter(., !SeqName %in% expressionWST_aqua$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre><code>## dcorrected_ave 
+##     -0.7035645</code></pre>
+<pre class="r"><code>#average tajima D within WST that are DE in only in white sea with description of 'Aquaporin'
+dcorrected_WST %&gt;% filter(., SeqName %in% expressionWST_aqua$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre><code>## dcorrected_ave 
+##      -2.604873</code></pre>
+<pre class="r"><code>#average tajima D within WST that do not have a description of 'Aquaporin'
+dcorrected_WST %&gt;% filter(., !SeqName %in% expressionWST_aqua$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre><code>## dcorrected_ave 
+##     -0.8412628</code></pre>
+</div>
+<div id="question-four-anything-labelled-as-a-macrophage-mannose-receptor.-i-think-these-are-potentially-novel-antifreeze-proteinsthey-often-blast-to-fish-type-2-antifreeze-proteins" class="section level1">
+<h1>Question Four: Anything labelled as a “macrophage mannose receptor”. I think these are potentially novel antifreeze proteins–they often blast to fish Type 2 antifreeze proteins</h1>
 <p>Note: there is only one transcipt in this comparison though for BCT coverage isnt high enough for these transcripts for a Tajima D calculation</p>
 <pre class="r"><code>expressionWST_MMR &lt;- expressionWST %&gt;% filter(.,grepl('macrophage mannose receptor',Description)) 
+
+#average tajima D within BCT that are DE in only in white sea with description of 'macrophage mannose receptor'
 dcorrected_BCT %&gt;% filter(., SeqName %in% expressionWST_MMR$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -1.108875</code></pre>
-<pre class="r"><code>dcorrected_BCT %&gt;% filter(., !SeqName %in% expressionWST_MMR$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within BCT that do not have a description of 'macrophage mannose receptor'
+dcorrected_BCT %&gt;% filter(., !SeqName %in% expressionWST_MMR$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.7035097</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., SeqName %in% expressionWST_MMR$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that are DE in only in white sea with description of 'macrophage mannose receptor'
+dcorrected_WST %&gt;% filter(., SeqName %in% expressionWST_MMR$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##      -1.320399</code></pre>
-<pre class="r"><code>dcorrected_WST %&gt;% filter(., !SeqName %in% expressionWST_MMR$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
+<pre class="r"><code>#average tajima D within WST that do not have a description of 'macrophage mannose receptor'
+dcorrected_WST %&gt;% filter(., !SeqName %in% expressionWST_MMR$SeqName) %&gt;% ungroup() %&gt;% select(.,dcorrected_ave) %&gt;% colMeans()</code></pre>
 <pre><code>## dcorrected_ave 
 ##     -0.8414786</code></pre>
 <p>there isnt enough of the MMR transcripts to do t-tests</p>
