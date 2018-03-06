@@ -110,14 +110,15 @@ ggplot() +
 #  scale_y_reverse( )
 
 
-fet <- read.table('../popoolation/BCT_WST.maxcov50000min50.fet', sep="\t", header=T, row.names=NULL) # note that plink cluster files are usually tab-separated instead
-fet$scaffold
-l=unique(fet$scaffold)
+fet <- read.table('../popoolation/BCT_WST.maxcov50000min50.fet', sep="\t", header=T, row.names=NULL) 
+fet$SeqName
+l=unique(fet$SeqName)
 
-fet$CHR<-as.numeric(factor(fet$scaffold, levels=l))
+fet$CHR<-as.numeric(factor(fet$SeqName, levels=l))
 fet$BP<-fet$position
-fet$P<-as.numeric(str_split_fixed(fet$fisher_values_.log10.p.value._BCT.WST, "=", 2)[,2]) #fisher
+#fet$P<-as.numeric(str_split_fixed(fet$fisher_values_.log10.p.value._BCT.WST, "=", 2)[,2]) #fisher
 #fet$P<-as.numeric(str_split_fixed(fet$fst_values_BCT.WST, "=", 2)[,2]) #fst
+fet$P<-fet$fisher_values_.log10.p.value._BCT.WST
 fet$SNP<-fet$position
 #manhattan(fet,logp=FALSE)
 
@@ -132,8 +133,23 @@ ggplot() +
   #scale_y_reverse( )
 
 #fst
-ggplot() + 
-  geom_point(aes(x=fet$CHR,y=fet$P)) + 
+fst <- read.table('../popoolation/BCT_WST.max50000min10.fst', sep="\t", header=T, row.names=NULL) # note that plink cluster files are usually tab-separated instead
+fst$SeqName
+l=unique(fst$SeqName)
+
+fst$CHR<-as.numeric(factor(fst$SeqName, levels=l))
+fst$BP<-fst$position
+#fst$P<-as.numeric(str_split_fixed(fst$fst_values_BCT.WST, "=", 2)[,2]) #fisher
+#fst$P<-as.numeric(str_split_fixed(fst$fst_values_BCT.WST, "=", 2)[,2]) #fst
+fst$P<-fst$fst_values_BCT.WST
+fst$SNP<-fst$position
+#manhattan(fst,logp=FALSE)
+
+plot(fst$CHR,fst$P,ylim=c(0,1))
+
+
+ggplot() +  
+  geom_point(aes(x=fst$CHR,y=fst$P)) + 
   ggtitle("Fst Each Site") + 
   theme_bw ()+ 
   labs(x="scaffold",y="Fst") 
